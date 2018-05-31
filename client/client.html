@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+         <meta charset="UTF-8">
+        <title>Space Trade</title>
+        <script src="client.js"></script>
+        <link rel="stylesheet" href="client.css"></link>
+        <script>
+            window.onload = function() {
+                var canvas = document.getElementById("game-canvas");
+                run_client(canvas);
+            };
+        </script>
+    </head>
+    <body>
+        <div>
+            <canvas id="game-canvas" width="100" height="100" />
+        </div>
+        <div id="fps"></div>
+    </body>
+</html>
