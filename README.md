@@ -1,2 +1,2 @@
 # spacetrade
-A space trade game for learning purposes
+A space trade game  I created for learning purposes
