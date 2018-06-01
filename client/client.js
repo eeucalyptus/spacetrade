@@ -12,7 +12,7 @@ function createStarSystem() {
     var planets = [];
     planet01_img = new Image;
     planet01_img.src = "planet01.png";
-    planets.push(new Planet({}, 10, 400, 1, 0, 5, planet01_img));
+    planets.push(new Planet({}, 10, [300, 0], [0, -200], 5, planet01_img));
 
     var starImage = new Image();
     starImage.src = "star.png";
@@ -50,22 +50,30 @@ function mainLoop(timestamp) {
 }
 
 
-function Planet(stock, diameter, starDist, angularVelocity, initialAngle, rotationSpeed, image) {
+function Planet(stock, diameter, pos, velocity, rotationSpeed, image) {
     this.lightOverlay = new Image;
     this.lightOverlay.src = "light.png"
 
     this.stock = stock;
     this.diameter = diameter;
-    this.starDist = starDist;
-    this.angularVelocity = angularVelocity;
-    this.angle = initialAngle;
+    this.pos = pos;
+    this.velocity = velocity;
     this.rotationSpeed = rotationSpeed;
     this.rotation = 0;
     this.image = image;
 
     this.update = function (delta) {
-        dAngle = delta*angularVelocity;
-        this.angle += dAngle;
+        var G = 20000000;
+        var vx = this.velocity[0];
+        var vy = this.velocity[1];
+        var r_sq = this.pos[0]*this.pos[0] + this.pos[1]*this.pos[1];
+        var r = Math.sqrt(r_sq);
+        var dx = this.pos[0] / r;
+        var dy = this.pos[1] / r;
+        var ax = -dx*G/r_sq;
+        var ay = -dy*G/r_sq;
+        this.velocity = [vx+delta*ax, vy+delta*ay];
+        this.pos = [this.pos[0] + delta*this.velocity[0], this.pos[1] + delta*this.velocity[1]];
 
         dRotation = delta*rotationSpeed;
         this.rotation += dRotation;
@@ -104,23 +112,18 @@ function updateStarSystem(delta) {
 function renderPlanet(planet, center) {
     var ctx = clientContext.canvasCtx;
 
-    var dist = planet.starDist;
-    var angle = planet.angle;
-    var pos = [center[0] + dist*Math.cos(angle), center[1] + dist*Math.sin(angle)]
-    if(planet.image != null) {
-        ctx.save();
-        ctx.translate(pos[0], pos[1]);
-        ctx.rotate(-planet.rotation);
-        ctx.drawImage(planet.image, -planet.image.width/2, -planet.image.height/2);
-        ctx.restore();
-    }
-    else {
-        ctx.fillStyle = "#000";
-        ctx.fillCicle("")
-    }
+    var pos = planet.pos;
+
+    ctx.save();
+    ctx.translate(center[0], center[1]);
+    ctx.translate(pos[0], pos[1]);
+    ctx.rotate(-planet.rotation);
+    ctx.drawImage(planet.image, -planet.image.width/2, -planet.image.height/2);
+    ctx.restore();
 
     // Light overlay
     ctx.save();
+    ctx.translate(center[0], center[1]);
     ctx.translate(pos[0], pos[1]);
     ctx.rotate(planet.angle);
     ctx.drawImage(planet.lightOverlay, -planet.lightOverlay.width/2, -planet.lightOverlay.height/2);
